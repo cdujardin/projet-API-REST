@@ -1,6 +1,7 @@
 <?php
-
+use Michelf\Markdown;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 require_once __DIR__. '/../vendor/autoload.php';
 
@@ -10,7 +11,7 @@ $users=[
   ['id'=>2, 'name' => 'foo'],
 ];
 
-$app = new Silex\Application();
+$app=new Silex\Application();
 
 /*$app->get('/hello/{name}', function($name) use($app) {
   return 'Hello '.$app->escape($name);
@@ -18,14 +19,41 @@ $app = new Silex\Application();
 */
 
 
-$app['debug'] =true;
 //mode débuggage activé
+$app['debug'] = true;
 
 
+//base de donnée
+$app->register(new Silex\Provider\DoctrineServiceProvider(), array(
+    'db.options' => array (
+          'driver'    => 'pdo_mysql',
+          'host'      => 'localhost',
+          'dbname'    => 'api_user',
+          'user'      => 'cdujardin',
+          'password'  => 'Momine42997328',
+          'charset'   => 'utf8',
+     )
+));
 
+//home
 $app->get('/', function(){
-  return <<<EOT
-    <!DOCTYPE html>
+     $htmlHead = ' <!DOCTYPE html>
+       <html lang="fr">
+       	<head>
+       		<meta charset="utf-8"/>
+       		<title>Titre de la page</title>
+       	</head>
+       	<body>';
+
+     $htmlTail = ' </body>
+    </html>';
+
+     $text =  file_get_contents('../README.md');
+     $html = Markdown::defaultTransform($text);
+     return $htmlHead . $html . $htmlTail;
+   /*
+   return >>>eio_custom
+   <!DOCTYPE html>
     <html lang="fr">
     	<head>
     		<meta charset="utf-8"/>
@@ -50,16 +78,20 @@ $app->get('/', function(){
       </body>
     </html>
 
-EOT;
+EOT;*/
 });
 
 //api
-$app->get('/api/users/', function() use($users){
-    return json_encode($users);
+$app->get('/api/users/', function() use($app){
+     $sql= "select * from user";
+     $users = $app['db'] -> fetchAll($sql);
+    return $app->json($users);
 });
 
-$app->get('/api/users/{id}', function($id) use($users){
-  return json_encode($users[$id]);
+$app->get('/api/users/{id}', function($id) use($app){
+     $sql= "select * from user where id=?";
+     $user = $app['db'] -> fetchAssoc($sql, [(int) $id]);
+  return $app->json($user);
 });
 
 $app->post('/api/users/', function(Request $request) use($users){
@@ -80,7 +112,7 @@ $app->post('/api/users/', function(Request $request) use($users){
 $app->delete('/api/users/{id}', function($id) use($users){
   unset($users[$id]);
 
-  return new Response('', 204)
+  return new Response('', 204);
 });
 
 

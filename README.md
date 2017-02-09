@@ -1,26 +1,38 @@
 #API REST
 
+
+
 ##DESCRIPTION
+  Projet d'api rest développé chez PopSchool, durant la session 2016-2017.
+  L'API fournit une liste d'utilisateur.
 
-  Projet d'api rest développé chez PopSchool, durant la session 2016-2017
-
-  ## INSTALLATION
-
+##INSTALLATION
   composer install
 
-  ##UTILISATION
+##STRUCTURE DE DONNÉES
+user
+     firstname: string
+     lastname: string
+     email: string
+     birthday: date
+     github: string
+     sex:string
+     pet: boolean
 
-  GET /users/
+
+
+##UTILISATION
+###GET /users/
   Renvoi la liste des utilisateurs
 
-  GET /user/{id}
+###GET /user/{id}
   Renvoi le détail d'un utilisateur
 
-  POST /users/
+###POST /users/
   Ajoute un utilisateur
 
-  PUT /users/{id}
+###PUT /users/{id}
   ajoute ou modifie un utilisateur
 
-  DELETE /user/{id}
+###DELETE /user/{id}
   supprime un utilisateur
