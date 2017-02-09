@@ -88,16 +88,48 @@ $app->get('/api/users/', function() use($app){
     return $app->json($users);
 });
 
+// View all about one user by id
 $app->get('/api/users/{id}', function($id) use($app){
      $sql= "select * from user where id=?";
      $user = $app['db'] -> fetchAssoc($sql, [(int) $id]);
   return $app->json($user);
 });
 
-$app->post('/api/users/', function(Request $request) use($users){
-  $name=$request->get('name');
+//create a new user
+$app->post('/api/users/', function(Request $request) use($app){
 
-  $nextIndex = count($users);
+     $firstname=$request->get('firstname');
+     $lastname=$request->get('lastname');
+     $email=$request->get('email');
+     $birthday=$request->get('birthday');
+     $github=$request->get('github');
+     $sex=$request->get('sex');
+     $pet=$request->get('pet');
+
+     if ($pet == 'true'){
+          $pet = true;
+     } elseif ($pet == 'false') {
+          $pet = false;
+     }
+
+     $app['db'] -> insert('user', [
+          'firstname' => $firstname,
+          'lastname' => $lastname,
+          'email' => $email,
+          'birthday' => $birthday,
+          'github' => $github,
+          'sex' => $sex,
+          'pet' => $pet,
+     ]);
+
+     $app['db']->lastInsertId();
+
+     return $lastId;
+
+});
+
+
+ /* $nextIndex = count($users);
 
   $users[] = [
     'id' => $nextIndex,
@@ -107,12 +139,21 @@ $app->post('/api/users/', function(Request $request) use($users){
   $lastId = count($users) -1;
 
   return $lastId;
-});
+});*/
 
 $app->delete('/api/users/{id}', function($id) use($users){
-  unset($users[$id]);
+  $resultat = $app['db']->delete('user', [
+       'id' => (int) $id,
+ ]);
 
-  return new Response('', 204);
+     if ($resultat) {
+               $return = 204;
+     } else {
+          $return = 500;
+     }
+
+  return new Response('', $return);
+  
 });
 
 
